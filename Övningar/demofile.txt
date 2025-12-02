@@ -1,0 +1,2 @@
+Vardagsrums TV,100,22,10,9
+Cool TV, 100, 22, 10, 9

@@ -1,0 +1,2 @@
+Vardagsrums TV, 100, 1, 10, 8
+Sovrums TV, 50, 40, 20, 3
