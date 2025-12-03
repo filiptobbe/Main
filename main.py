@@ -48,15 +48,12 @@ def har_granne_fara(rum_lista, rumsnummer, fara):
 #Slumpa ut rum (av de tomma rummen)
 def slumpa_tomt_rum(rum_lista, slumpgenerator, forbjudna=frozenset()):
     mojliga_rum = []
+    #Slumpar ut alla tomma rum (ej Whumpus/fladdermöss/hål)
     for index, rum in enumerate(rum_lista):
         if rum.fara == Rum.FARA_TOM and index not in forbjudna:
             mojliga_rum.append(index)
-
-    if not mojliga_rum:
-        return None   #Om möljliga rum är tom
-
+    
     return slumpgenerator.choice(mojliga_rum)
-
 
 #Slumpar ut faror i rum och returnerar var de hamnar utan att krocka. Undviker spelarens startrum
 def slumpa_faror(rum_lista, slumpgenerator, andel_hal, andel_fladdermus, forbjudna_start=frozenset()):
@@ -77,7 +74,7 @@ def slumpa_faror(rum_lista, slumpgenerator, andel_hal, andel_fladdermus, forbjud
     #Placerar ut Wumpus (kollar först att det går)
     if wumpus_rum is None:
         print("Kunde inte placera Wumpus.")
-        return None, None, None
+        return None
     forbjudna.add(wumpus_rum)
     rum_lista[wumpus_rum].fara = Rum.FARA_WUMPUS
 
@@ -101,7 +98,7 @@ def slumpa_faror(rum_lista, slumpgenerator, andel_hal, andel_fladdermus, forbjud
         forbjudna.add(valt)
         rum_lista[valt].fara = Rum.FARA_FLADDERMUS
 
-    return wumpus_rum, hal_rum, fladdermus_rum
+    return wumpus_rum
 
 
 #Visning
@@ -277,14 +274,6 @@ def wumpus_ror_sig(rum_lista, spel, sannolikhet_wumpus_gar_normal, slumpgenerato
     w_grannar = set(rum_lista[nu].hamta_grannar().values())
     s_grannar = set(rum_lista[spelarrum].hamta_grannar().values())
 
-    #Hjälp: välj slumpad TOM granne (står still om inga kandidater)
-    def valj_tomt_granne(nod):
-        kandidater = []
-        for g in rum_lista[nod].hamta_grannar().values():
-            if 0 <= g < len(rum_lista) and rum_lista[g].fara == Rum.FARA_TOM:
-                kandidater.append(g)
-        return slumpgenerator.choice(kandidater) if kandidater else nod
-
     #Logik för olika svårighetsgrader
     if spel.svarighetsgrad == "LÄTT":
         nytt = nu  #står still
@@ -303,15 +292,18 @@ def wumpus_ror_sig(rum_lista, spel, sannolikhet_wumpus_gar_normal, slumpgenerato
                 if mot_kandidater:
                     nytt = slumpgenerator.choice(mot_kandidater)
                 else:
-                    #3)Annars valfri TOM granne
-                    nytt = valj_tomt_granne(nu)
+                    #3) Annars valfri TOM granne
+                    nytt = slumpa_tomt_granne(rum_lista, nu, slumpgenerator)
+
+
 
     else:  #"SVÅR" - rör sig varje tur
         if spelarrum in w_grannar:
             nytt = spelarrum
         else:
             mot_kandidater = [g for g in w_grannar if g in s_grannar and rum_lista[g].fara == Rum.FARA_TOM]
-            nytt = slumpgenerator.choice(mot_kandidater) if mot_kandidater else valj_tomt_granne(nu)
+            nytt = slumpgenerator.choice(mot_kandidater) if mot_kandidater else slumpa_tomt_granne(rum_lista, nu, slumpgenerator)
+
 
     #Uppdatera plats (markerar rummen korrekt)
     spel.uppdatera_wumpus_plats(rum_lista, nytt)
@@ -342,9 +334,10 @@ def main():
     spelarens_rum = slump.choice(list(range(len(rum_lista))))
 
     #Slumpa faror - undvik spelarens start
-    wumpus_rum, hal_rum, fladder_rum = slumpa_faror(
-        rum_lista, slump, andel_hal, andel_fladdermus, forbjudna_start={spelarens_rum}
+    wumpus_rum = slumpa_faror(
+    rum_lista, slump, andel_hal, andel_fladdermus, forbjudna_start={spelarens_rum}
     )
+
     if wumpus_rum is None:
         return
 
@@ -366,7 +359,7 @@ def main():
 
     #Spelloop
     while True:
-        #Visa "hörselobservationer"
+        #Visa sinnen
         visa_sinnen(rum_lista, spel.spelarens_rum)
 
         #Visa grannar
