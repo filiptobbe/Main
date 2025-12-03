@@ -71,11 +71,12 @@ class WhumpusGUI:
         self.spelarens_rum = self.slumpgenerator.choice(range(len(self.rum_lista)))
 
         #Slumpar faror enligt dina parametrar (undvik spelarens start)
-        wumpus_rum, _, _ = motor.slumpa_faror(
+        wumpus_rum = motor.slumpa_faror(
             self.rum_lista, self.slumpgenerator,
             self.andel_hal, self.andel_fladder,
             forbjudna_start={self.spelarens_rum}
         )
+
         if wumpus_rum is None:
             self.skriv_till_logg("Placering av faror misslyckades.")
             self.game_over = True
@@ -252,7 +253,7 @@ def valj_svarighetsgrad(huvudfonster, standard="NORMAL"):
 
     inmatning.bind("<Return>", lambda e: forsok_stanga())
 
-    #Gör 
+    #pop-up-dialog som måste stängas innan spelet fortsätter
     dialog.transient(huvudfonster)
     dialog.grab_set()
     inmatning.focus_set()
@@ -275,7 +276,7 @@ def main():
         sannolikhet_norm = 0.0
     elif vald_svarighetsgrad == "SVÅR":
         sannolikhet_norm = 1.0
-    else:  # "NORMAL"
+    else:  #"NORMAL"
         sannolikhet_norm = 0.30
 
     #Skapa GUI-applikationen med valda parametrar
