@@ -7,7 +7,23 @@ import main as motor
 from rum import Rum
 from speltillstand import Speltillstand
 
-#Klass för att använda grafik
+"""
+Grafiskt gränssnitt för Whumpus-spelet med Tkinter.
+
+Hanterar:
+    uppbyggnad av GUI (knappar, textlogg, statusrad)
+    start av nytt spel och uppdatering av speltillstånd
+    spelarens drag (förflyttning och skjutning) och GAME OVER.
+
+Parametrar:
+    huvudfonster (tk.Tk | tk.Toplevel), kartfil (str),
+    andel_hal (float), andel_fladder (float),
+    sannolikhet_norm (float), antal_pilar (int),
+    svarighetsgrad (str).
+
+Returnerar:
+    Inget vid skapande - används för att köra spelet via GUI:t.
+"""
 class WhumpusGUI:
 
     def __init__(self, huvudfonster, kartfil, andel_hal, andel_fladder,
@@ -261,25 +277,77 @@ def valj_svarighetsgrad(huvudfonster, standard="NORMAL"):
 
     return resultat["val"]
 
-        
+def visa_instruktioner(huvudfonster):
+    #Visar en ruta spelinstruktioner innan spelet startar
+    dialog = tk.Toplevel(huvudfonster)
+    dialog.title("Instruktioner")
+    dialog.resizable(False, False)
+
+    ram = tk.Frame(dialog)
+    ram.pack(padx=12, pady=12)
+
+    instruktionstext = (
+        "WHUMPUS – snabbguide\n\n"
+        "Mål:\n"
+        " • Döda Wumpus genom att skjuta en pil som passerar genom Wumpus rum.\n\n"
+        "Kontroller:\n"
+        " • Förflyttning: klicka på N, O, S, V.\n"
+        " • Skjuta: skriv tre riktningar (t.ex. NOS) och klicka ”Skjut pil”.\n\n"
+        "Ledtrådar (sinnen):\n"
+        " • ”Du hör fladdermöss!” = fladdermöss i angränsande rum.\n"
+        " • ”Du känner vinddrag!” = hål i angränsande rum.\n"
+        " • ”Du känner lukten av Wumpus!” = Wumpus i angränsande rum.\n\n"
+        "Regler:\n"
+        " • Kliver du i hål → dör du.\n"
+        " • Kliver du i Wumpus rum → dör du.\n"
+        " • Kliver du i fladdermöss → teleporteras till ett slumpat tomt rum.\n"
+        " • Pilar tar slut - då förlorar du.\n\n"
+        "Tips:\n"
+        " • Titta på grannrummen och sinnena för att resonera om var faror finns.\n"
+        " • På NORMAL kan Wumpus röra sig ibland efter ditt drag.\n\n"
+        "Tryck Enter eller klicka Starta för att börja."
+    )
+
+    #Läsbart och låst textfält
+    ruta = tk.Text(ram, width=64, height=22, wrap="word")
+    ruta.insert("1.0", instruktionstext)
+    ruta.config(state="disabled")
+    ruta.pack()
+
+    knapprad = tk.Frame(ram)
+    knapprad.pack(pady=(10, 0))
+    knapp_starta = tk.Button(knapprad, text="Starta", command=dialog.destroy)
+    knapp_starta.pack()
+
+    #Enter stänger dialogen (startar spelet)
+    dialog.bind("<Return>", lambda _e: dialog.destroy())
+
+    #Skapar rutan
+    dialog.transient(huvudfonster)
+    dialog.grab_set()
+    knapp_starta.focus_set()
+    huvudfonster.wait_window(dialog)
+       
 
 
 def main():
-    #Startar huvudfönster
     huvudfonster = tk.Tk()
 
-    #Fråga svårighetsgrad 
+    #Visa instruktioner först
+    visa_instruktioner(huvudfonster)
+
+    #Fråga svårighetsgrad
     vald_svarighetsgrad = valj_svarighetsgrad(huvudfonster, standard="NORMAL")
 
-    #Sätt Wumpus-rörelsesannolikhet för NORMAL-läget
+    #Sätt Wumpus-rörelsesannolikhet utifrån svårighetsgrad
     if vald_svarighetsgrad == "LÄTT":
         sannolikhet_norm = 0.0
     elif vald_svarighetsgrad == "SVÅR":
         sannolikhet_norm = 1.0
-    else:  #"NORMAL"
+    else:  # "NORMAL"
         sannolikhet_norm = 0.30
 
-    #Skapa GUI-applikationen med valda parametrar
+    #Starta GUI med valda parametrar
     app = WhumpusGUI(
         huvudfonster,
         kartfil="karta.txt",
@@ -290,7 +358,6 @@ def main():
         svarighetsgrad=vald_svarighetsgrad
     )
 
-    #Kör Tkinter-loop
     huvudfonster.mainloop()
 
 

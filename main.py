@@ -10,7 +10,7 @@ def las_karta_fran_fil(filnamn):
     rum_lista = []
     try:
         with open(filnamn, encoding="utf-8") as fil:
-            #Dela upp varje rad i fyra delar för varje vädersträck
+            #Dela upp varje rad i fyra delar för varje väderstreck
             for rumsnummer, rad in enumerate(fil):
                 rad = rad.strip()
                 if rad == "" or rad.startswith("#"):

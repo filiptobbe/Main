@@ -1,4 +1,20 @@
-#Skapar klassen speltillstånd
+"""
+Representerar speltillståndet i Wumpus-spelet
+
+Parametrar (till __init__):
+    spelarens_rum (int): Rummet där spelaren befinner sig i början av spelet.
+    wumpus_rum (int): Rummet där Wumpus befinner sig i början av spelet.
+    antal_pilar (int): Antalet pilar spelaren har tillgängliga.
+    svarighetsgrad (str | int): Anger spelets svårighetsgrad (t.ex. "lätt", "medel", "svår" eller motsvarande kod).
+
+Attribut:
+    spelarens_rum (int): Håller nuvarande rum där spelaren befinner sig.
+    wumpus_rum (int): Håller nuvarande rum där Wumpus befinner sig.
+    antal_pilar (int): Håller nuvarande antal pilar spelaren har kvar.
+    svarighetsgrad (str | int): Spelets svårighetsgrad.
+
+Klassen används för att lagra och uppdatera spelets tillstånd.
+    """
 class Speltillstand:
 
     #Skapar instansvariablerna

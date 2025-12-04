@@ -1,4 +1,15 @@
-#Skapar klassen "Rum" som representerar ett rum i kartan
+"""
+Skapar ett rum i kartan och lagrar dess utgående dörrar samt eventuell fara.
+
+Attribut:
+    rumsnummer (int): Unikt id/index för rummet i listan av rum.
+    norr (int): Rumsnummer dit norr-dörren leder.
+    oster (int): Rumsnummer dit öster-dörren leder.
+    soder (int): Rumsnummer dit söder-dörren leder.
+    vaster (int): Rumsnummer dit väster-dörren leder.
+    fara (str): En av { "TOM", "HAL", "FLADDERMUS", "WUMPUS" }.
+"""
+
 class Rum:
     #Klasskonstanter
     GILTIGA_RIKTNINGAR = ("N", "O", "S", "V")
